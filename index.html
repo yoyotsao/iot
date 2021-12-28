@@ -3,14 +3,17 @@
 <script>
   var db = openDatabase('mydb2', '1.0', 'Test DB', 2 * 1024 * 1024);
          var msg;
-         var e_id=7, e_log="c";
+         var e_log="c";
   function add()
   {
+    document.querySelector('#status').innerHTML =  "";
     db.transaction(function (tx) {
+      var len;
+      tx.executeSql('SELECT * FROM LOGS', [], function (tx, results) {len = results.rows.length;}, null);
       tx.executeSql('CREATE TABLE IF NOT EXISTS LOGS (id unique, log)');
-      tx.executeSql('INSERT INTO LOGS (id,log) VALUES (?, ?)', [1, "c"]);
+      tx.executeSql('INSERT INTO LOGS (id,log) VALUES (?, ?)', [len+1, e_log]);
     });
-    alert("add");
+    
     db.transaction(function (tx) {
             tx.executeSql('SELECT * FROM LOGS', [], function (tx, results) {
                var len = results.rows.length, i;
@@ -88,6 +91,7 @@
 
   function send() {
     var data = document.getElementById("input").value;
+    e_log=data;
     log("You> " + data);
     myCharacteristic.writeValue(str2ab(data+"\n"))
     document.getElementById("input").value = "";
