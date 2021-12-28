@@ -3,27 +3,26 @@
 <script>
   var db = openDatabase('mydb2', '1.0', 'Test DB', 2 * 1024 * 1024);
          var msg;
-         var e_log="c";
-  function add()
+  function add(e_log)
   {
-    document.querySelector('#status').innerHTML =  "";
+    document.querySelector('#status').innerHTML =  "<pre>";
     db.transaction(function (tx) {
       var len;
       tx.executeSql('SELECT * FROM LOGS', [], function (tx, results) {len = results.rows.length;}, null);
       tx.executeSql('CREATE TABLE IF NOT EXISTS LOGS (id unique, log)');
       tx.executeSql('INSERT INTO LOGS (id,log) VALUES (?, ?)', [len+1, e_log]);
     });
-    
     db.transaction(function (tx) {
             tx.executeSql('SELECT * FROM LOGS', [], function (tx, results) {
                var len = results.rows.length, i;
-               msg = "<p>查询记录条数: " + len + "</p>";
+               msg = "查询记录条数: " + len + "   ";
                document.querySelector('#status').innerHTML +=  msg;
 					
                for (i = 0; i < len; i++){
-                  msg = "<p><b>" + results.rows.item(i).log + "</b></p>";
+                  msg = "<b>" + results.rows.item(i).log + " </b>";
                   document.querySelector('#status').innerHTML +=  msg;
                }
+               document.querySelector('#status').innerHTML +=  "</pre>";
             }, null);
          });
   }
@@ -91,7 +90,7 @@
 
   function send() {
     var data = document.getElementById("input").value;
-    e_log=data;
+    add(data);
     log("You> " + data);
     myCharacteristic.writeValue(str2ab(data+"\n"))
     document.getElementById("input").value = "";
@@ -122,7 +121,6 @@
 </head>
 
 <body>
-  <div onclick="add()" style="color: white;">add</div>
   <div id="status" name="status" style="color: white;">状态信息</div>
   <div class="header">WEB-BLUETOOTH TERMINAL</div>
   <div class="terminal"><textarea id="term" readonly class="terminal"></textarea></div>
